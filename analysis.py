@@ -1,9 +1,9 @@
 import numpy as np
 import util
+from scipy import signal, interpolate
 
 
-
-
+##########---------------------------Heart Rate-------------------------------##############
 def samplingFq_vs_HR(original_hr, original_fq, target_HRs, resampled_rates):
     '''
     Determine how changing the sampling frequency impacts error in calculating heart rate across heart rate amplitude
@@ -112,3 +112,9 @@ def get_hr_distribution_chunks(hr_synth, fq, dur_sec):
         mean.append(np.nanmean(HR_iterations))
         
     return mean, std
+
+
+##########---------------------------SpO2-------------------------------##############
+
+
+

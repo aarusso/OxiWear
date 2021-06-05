@@ -19,13 +19,14 @@ Here is a brief, high-level description of each function included in this repo.
 - `getSpO2`: Calculates SpO2 based on the ratio between red and infrared AC/DC components. Typically this is done with a look-up table. Here, we approximated the relationship between the ratio and SpO2 with a linear function.
 - `get_HR`: Calculates heart rate from the AC component of the red sensor data. Peaks in the data are identified and heart rate is calculated from the inter-peak interval, which was found to be more accurate than dividing the total number of peaks by the sample duration.
 - `synth_HR`: Simulates 1 minute of signal at desired heart rates from empirical data, keeping sampling rate constant.
-- `resample_hr`: Simulates signal at a desired sampling rate from empirical data, keeping heart rate and sample duration in seconds constant.
+- `synthesize_SpO2`: Simulates SpO2 with or without a hypoxic event, see docstring for more information.
+- `make_kernel`: creates a kernel to mimic a SpO2 drop with the desired time-course and magnitude.
 
 ### analysis
 - `samplingFq_vs_HR`: Analysis regarding how the sampling frequency impacts error in calculating heart rate across heart rate amplitude
 - `samplingDur_vs_HR`: Analysis regarding how the sample duration impacts error in calculating heart rate across heart rate amplitude
-- `get_hr_distribution`:  meaured HR will differ somewhat depending on the starting index. This function measures that distribution for comparison across parameter settings.
-- `get_hr_distribution_chunks`:  Similarly, this function extracts random segmnets of a prescribed sample duration to get a distribution of heart rate estimates across segments. 
+- `get_hr_distribution`:  measured HR will differ somewhat depending on the starting index. This function measures that distribution for comparison across parameter settings.
+- `get_hr_distribution_chunks`:  Similarly, this function extracts random segments of a prescribed sample duration to get a distribution of heart rate estimates across segments. 
 
 ### plotting
 

@@ -8,9 +8,6 @@ from scipy import signal, interpolate
 def decompose_ACDC(red, infrared, sampling_rate):
     
     N = len(red)
-    min_max = min(np.max(red), np.max(infrared))
-    red = red/min_max
-    infrared = infrared/min_max
     
     #  create high/low pass filters
     high_cut = 20  # anything lower than 20 Hz is not heart rate
@@ -37,14 +34,12 @@ def decompose_ACDC(red, infrared, sampling_rate):
     data['IR_AC'] = IR_AC
     data['IR_DC'] = IR_DC
     data['sampling_rate'] = sampling_rate
-    data['high_pass'] = high_pass
-    data['low_pass'] = low_pass
     data['time_min'] = np.linspace(0,N/data['sampling_rate'],N)/60
     
     return data
 
 
-def getSpO2(h, sec_to_avg = 3, ratio = 1):
+def getSpO2(h, sec_to_avg = 3):
     red_AC = h['red_AC']
     red_DC = h['red_DC']
     
@@ -90,7 +85,7 @@ def get_HR(hr_signal, sampling_rate):
    
 
 
-#######---------------------Synthesize data----------------------#########
+#######---------------------Synthesize data (HR) ----------------------#########
 
 def synth_HR(hr_signal, fq, target_HRs):
     '''
@@ -137,3 +132,97 @@ def resample_hr(hr_signal, fq, resampled_fq):
     resampled_hr_signal = interpolated(resampled_t)
 
     return resampled_hr_signal
+
+
+#######---------------------Synthesize data (SpO2) ----------------------#########
+
+
+def synthesize_SpO2(h, tile_range, params):
+    
+    red = h['red']
+    IR = h['IR']
+    sampling_rate = h['sampling_rate']
+    
+
+    simulation_dur_sec = params['drop_time_sec'] + params['recover_time_sec'] + 20*60 # 20 minute buffer
+    data_dur_sec = (tile_range[1]-tile_range[0])/sampling_rate
+    num2tile = int(np.ceil(simulation_dur_sec/data_dur_sec))
+    
+    #####---------------------------------------------------####
+    def synthesize_data(data_AC, data_DC, drop):
+       
+        data_AC = data_AC[tile_range[0]:tile_range[1]]
+        AC_synth = np.tile(data_AC, num2tile)
+
+        N = len(AC_synth)
+        
+        data_DC = data_DC[tile_range[0]:tile_range[1]]
+        DC_synth = np.tile(data_DC, num2tile)
+
+        # mimic spo2 drop on 'red' DC
+        if drop:
+            drop_time    = int(params['drop_time_sec']*sampling_rate)
+            recover_time = int(params['recover_time_sec']*sampling_rate)
+            kernel_duration = drop_time + recover_time
+
+            buffer = 1000
+            # 5-15 minutes into the recording = spo2 drop
+            drop_idx = np.random.randint(5*60*sampling_rate, 15*60*sampling_rate)
+            drop_kernel = make_kernel(sampling_rate, params)
+            kernel = np.ones(N)
+            kernel[drop_idx:len(drop_kernel)+drop_idx] = drop_kernel
+
+            DC_synth = np.multiply(DC_synth,kernel)
+        else:
+            drop_idx = float('nan')
+
+        
+        return AC_synth, DC_synth, drop_idx
+    #####---------------------------------------------------####
+    
+    
+    # NB: this is intentional: using IR to synthesize both red and IR than artifically setting the ratio
+    IR_AC_synth,  IR_DC_synth, _  = synthesize_data(h['IR_AC'],  h['IR_DC'], False)
+    red_AC_synth, red_DC_synth, drop_idx = synthesize_data(h['IR_AC'], h['IR_DC'], True)
+    
+    synth_ratio = (params['baseline_spo2']-120)/-40
+    IR_DC_synth = IR_DC_synth*synth_ratio
+    
+    # add noise
+    noise_level = params['noise'] * np.std(IR_DC_synth) * 10
+    low_pass  = signal.butter(2, .01, 'lowpass',  fs=sampling_rate, output='sos')
+    noise = np.random.randn(len(IR_DC_synth))
+    noise = signal.sosfilt(low_pass, noise) * noise_level
+    IR_DC_synth = IR_DC_synth + noise
+    
+    data_synth = dict()
+    data_synth['red'] = red_AC_synth + red_DC_synth
+    data_synth['IR'] = IR_AC_synth + IR_DC_synth
+    data_synth['red_AC'] = red_AC_synth
+    data_synth['red_DC'] = red_DC_synth
+    data_synth['IR_AC'] = IR_AC_synth
+    data_synth['IR_DC'] = IR_DC_synth
+    data_synth['sampling_rate'] = sampling_rate
+    data_synth['drop_idx'] = drop_idx
+    data_synth['time_min'] = np.linspace(0,len(red_AC_synth)/sampling_rate,len(red_AC_synth))/60
+    
+    data_synth = getSpO2(data_synth)
+
+    return data_synth
+
+# function to synthesze a spo2 drop
+def make_kernel(sampling_rate, params):
+
+
+    drop_time    = int(params['drop_time_sec']*sampling_rate)
+    recover_time = int(params['recover_time_sec']*sampling_rate)
+    kernel_duration = drop_time + recover_time
+    
+    drop_kernel = np.ones(kernel_duration)
+    
+    drop_kernel[:drop_time] = np.linspace(1, params['drop_frac'], drop_time)
+    drop_kernel[drop_time:drop_time+recover_time]  = np.linspace(params['drop_frac'] ,1, recover_time)
+    
+  
+    return drop_kernel
+
