@@ -25,8 +25,13 @@ Here is a brief, high-level description of each function included in this repo.
 ### analysis
 - `samplingFq_vs_HR`: Analysis regarding how the sampling frequency impacts error in calculating heart rate across heart rate amplitude
 - `samplingDur_vs_HR`: Analysis regarding how the sample duration impacts error in calculating heart rate across heart rate amplitude
-- `get_hr_distribution`:  measured HR will differ somewhat depending on the starting index. This function measures that distribution for comparison across parameter settings.
+- `get_hr_distribution`:  Measured HR will differ somewhat depending on the starting index. This function measures that distribution for comparison across parameter settings.
 - `get_hr_distribution_chunks`:  Similarly, this function extracts random segments of a prescribed sample duration to get a distribution of heart rate estimates across segments. 
+- `test_data_rate`:  Used by `get_alarm_time_distribution`, this function mimics a data update period strategy and outputs the corresponding SpO2 values that would have been detected.
+- `get_alarm_time_distribution`: Used by `inter_sample_vs_alarm_time`,  this function determines how delays in alarm time interacts with the choice of data update period. 
+- `inter_sample_vs_alarm_time`:  This function determines how alarm time delays vary with both the choice of the inter sample spacing and the choice of low-SpO2 trigger threshold.
+- `get_battery_fraction`: This function calculates the proportion of battery life saved given a sampling strategy.
+
 
 ### plotting
 
@@ -34,6 +39,12 @@ Here is a brief, high-level description of each function included in this repo.
 - `plot_nyquest`: plots the theoretically minimum viable sampling rate as a function of heart rate according to the Nyquest-Shannon theorem.
 - `plot_fq_vs_HR`: plots the results of `samplingFq_vs_HR` as both a 2 dimensional heat plot and marginalized across either sampling frequency or heart rate.
 - `plot_dur_vs_HR`: plots the results of `samplingDur_vs_HR` as both a 2 dimensional heat plot and marginalized across either sample duration or heart rate.
+- `plot_synth_spo2`: A simple function for plotting SpO2 vs time, used by the following functions
+- `plot_fig_1`, `plot_fig_2`,` plot_fig_3`: These functions plot simulated data to model the timecourse of SpO2 drops as observed in the literature (Sun et al _Gas exchange detection of exercise-induced right-to-left shunt in patients with primary pulmonary hypertension._ Circulation 2002). See docstring of plotting.py for parameter choices to simulate these empirical data.
+- `plot_rate_vs_alarm_time`: plots the results of `inter_sample_vs_alarm_time` as both a 2 dimensional heat plot and marginalized across trigger threshold.
+- `plot_color_range`: Plots a SpO2 trace with green, orange, and red ranges overlaid and the SpO2-aware sampling strategy indicated with x's.
+- `plot_fraction_batt_vs_orange_time`:  plots the results of `get_battery_fraction` as both a 2 dimensional heat plot and a line plot with slices through % time in orange range.
+- `plot_battery_life_in_days`: plots the results of `get_battery_fraction` on the scale of days as both a 2 dimensional heat plot and a line plot with slices through % time in orange range.
 
 
 ## Required Packages

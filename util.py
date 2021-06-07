@@ -39,7 +39,7 @@ def decompose_ACDC(red, infrared, sampling_rate):
     return data
 
 
-def getSpO2(h, sec_to_avg = 3):
+def getSpO2(h, tile_range, sec_to_avg = 3):
     red_AC = h['red_AC']
     red_DC = h['red_DC']
     
@@ -61,7 +61,7 @@ def getSpO2(h, sec_to_avg = 3):
     
     h['ratio'] = np.array(R)
     h['spo2'] = np.array(Spo2)
-    
+    h['tile_range'] = tile_range # the indices for which the data are more-or-less continuous when looped
     return h
 
 #######--------------------- Calculate heart rate ----------------------#########
@@ -137,12 +137,12 @@ def resample_hr(hr_signal, fq, resampled_fq):
 #######---------------------Synthesize data (SpO2) ----------------------#########
 
 
-def synthesize_SpO2(h, tile_range, params):
+def synthesize_SpO2(h, params):
     
     red = h['red']
     IR = h['IR']
     sampling_rate = h['sampling_rate']
-    
+    tile_range = h['tile_range']
 
     simulation_dur_sec = params['drop_time_sec'] + params['recover_time_sec'] + 20*60 # 20 minute buffer
     data_dur_sec = (tile_range[1]-tile_range[0])/sampling_rate
@@ -206,7 +206,7 @@ def synthesize_SpO2(h, tile_range, params):
     data_synth['drop_idx'] = drop_idx
     data_synth['time_min'] = np.linspace(0,len(red_AC_synth)/sampling_rate,len(red_AC_synth))/60
     
-    data_synth = getSpO2(data_synth)
+    data_synth = getSpO2(data_synth, tile_range)
 
     return data_synth
 
