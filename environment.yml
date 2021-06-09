@@ -1,0 +1,10 @@
+name: oxiwear
+channels:
+  - defaults
+dependencies:
+  - python = 3.6.9
+  - notebook
+  - numpy = 1.19.2
+  - scipy = 1.5.2
+  - matplotlib = 3.3.4
+  - pandas = 1.1.5
