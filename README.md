@@ -28,6 +28,9 @@ Here is a brief, high-level description of each function included in this repo.
 
 `demo.ipynb`: a Jupyter Notebook containing complete didactic documentation and use examples for all code.
 
+You can open this notebook in your web browser using Google Colaboratory\
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/aarusso/OxiWear/blob/main/demo.ipynb)
+
 ### utility
 
 - `decompose_ACDC`: Decomposes the red or infrared sensor data into AC and DC components, using high-pass and low-pass Butterworth filters, respectively. 
