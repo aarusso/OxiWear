@@ -11,16 +11,16 @@ June 2021
 ## Set up with Conda
 We have provided a file called **environment.yml**. This YAML file will help you create a virtual environment named **oxiwear** used for activation and install necessary dependencies.
 
-To create your environment from the YAML file please run:
-`conda env create --file environment.yml`
+To create your environment from the YAML file please run:\
+`conda env create --file environment.yml`\
 Next, you will activate the created environment. To do so, you will need to
-to call the following command:
-`conda activate oxiwear`
-To run the demo notebook, you will need to install the environment to Jupyter Notebook. With the environment active, install ipykernel:
-`conda install -c anaconda ipykernel`
-`ipython kernel install --user --name=oxiwear`
-Launch Jupyter notebook in the active environment:
-`jupyter notebook`
+to call the following command:\
+`conda activate oxiwear`\
+To run the demo notebook, you will need to install the environment to Jupyter Notebook. With the environment active, install ipykernel:\
+`conda install -c anaconda ipykernel`\
+`ipython kernel install --user --name=oxiwear`\
+Launch Jupyter notebook in the active environment:\
+`jupyter notebook`\
 You should now see the environment `oxiwear` as a kernel option.
 
 ## Code
